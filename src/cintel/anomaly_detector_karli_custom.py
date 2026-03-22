@@ -121,8 +121,8 @@ def main() -> None:
     # Karli's Update: I made this so we can see how many (if any) patients are above 5.5 feet tall.
     MIN_REASONABLE_Y_VALUE: Final[float] = 66.0
 
-    LOG.info(f"MAX_REASONABLE_X_VALUE: {MIN_REASONABLE_X_VALUE} in years")
-    LOG.info(f"MAX_REASONABLE_Y_VALUE: {MIN_REASONABLE_Y_VALUE} in inches")
+    LOG.info(f"MIN_REASONABLE_X_VALUE: {MIN_REASONABLE_X_VALUE} in years")
+    LOG.info(f"MIN_REASONABLE_Y_VALUE: {MIN_REASONABLE_Y_VALUE} in inches")
 
     # Create a new DataFrame named anomalies_df that contains
     # only the rows where EITHER
