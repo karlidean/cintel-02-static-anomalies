@@ -1,5 +1,5 @@
 """
-Example Used: anomaly_detector_case.py - Project script.
+Example Used: anomaly_detector_karlidean.py
 
 Author: Karli Dean
 Date: 2026-03-22
@@ -21,17 +21,13 @@ Purpose
 
 Paths (relative to repo root)
 
-    INPUT FILE: data/clinic_data_case.csv
-    OUTPUT FILE: artifacts/anomalies_case.csv
+    INPUT FILE: data/clinic_data_karlidean.csv
+    OUTPUT FILE: artifacts/anomalies_karli_custom.csv
 
 Terminal command to run this file from the root project folder
 
-    uv run python -m cintel.anomaly_detector_karlidean
+    uv run python -m cintel.anomaly_detector_karli_custom
 
-OBS:
-  Don't edit this file - it should remain a working example.
-  Use as much of this code as you can when creating your own pipeline script,
-  and change the logic to detect anomalies and define thresholds as needed for your project.
 """
 
 # === DECLARE IMPORTS (packages we will use in this project) ===
@@ -45,22 +41,26 @@ import polars as pl
 from datafun_toolkit.logger import get_logger, log_header, log_path
 
 # === CONFIGURE LOGGER ===
+# This logs your project in the project.log file
 
 LOG: logging.Logger = get_logger("P2", level="DEBUG")
 
 # === DECLARE GLOBAL CONSTANTS FOR FOLDER PATHS (directories) ===
+# This declares where your information is coming from/going to
 
 ROOT_DIR: Final[Path] = Path.cwd()
 DATA_DIR: Final[Path] = ROOT_DIR / "data"
 ARTIFACTS_DIR: Final[Path] = ROOT_DIR / "artifacts"
 
 # === DECLARE GLOBAL CONSTANTS FOR FILE PATHS ===
+# This lets the system know what data to pull and what to call the output in the artifacts folder.
 
-DATA_FILE: Final[Path] = DATA_DIR / "clinic_data_case.csv"
-OUTPUT_FILE: Final[Path] = ARTIFACTS_DIR / "anomalies_karlidean.csv"
+DATA_FILE: Final[Path] = DATA_DIR / "clinic_data_karlidean.csv"
+OUTPUT_FILE: Final[Path] = ARTIFACTS_DIR / "anomalies_karli_custom.csv"
 
 
 # === DEFINE THE MAIN FUNCTION ===
+# What the computer is actually going to be doing.
 
 
 def main() -> None:
@@ -111,17 +111,18 @@ def main() -> None:
     # An anomaly is any value greater than the threshold we set.
     # Domain rule for this example:
     # Anything above this value is suspicious.
-    LOG.info("Studying children's ages and heights to find anomalies...")
+    LOG.info("Studying people's ages and heights to find anomalies...")
 
     # x is age in years, so 16 is the upper limit for kids
-    # Karli's Update: Legal age for children goes up to 18, so that upper limit will be 18.
-    MAX_REASONABLE_X_VALUE: Final[float] = 18.0
+    # Karli's Update: The dataset has only people who are over the age of 35. The legal age limit to be an adult (18) will remain as our lower limit.
+    MIN_REASONABLE_X_VALUE: Final[float] = 35
 
     # y is height in inches, so maybe 6 feet (72 inches) is a reasonable upper limit
-    MAX_REASONABLE_Y_VALUE: Final[float] = 72.0
+    # Karli's Update: I made this so we can see how many (if any) patients are above 5.5 feet tall.
+    MIN_REASONABLE_Y_VALUE: Final[float] = 66.0
 
-    LOG.info(f"MAX_REASONABLE_X_VALUE: {MAX_REASONABLE_X_VALUE} in years")
-    LOG.info(f"MAX_REASONABLE_Y_VALUE: {MAX_REASONABLE_Y_VALUE} in inches")
+    LOG.info(f"MAX_REASONABLE_X_VALUE: {MIN_REASONABLE_X_VALUE} in years")
+    LOG.info(f"MAX_REASONABLE_Y_VALUE: {MIN_REASONABLE_Y_VALUE} in inches")
 
     # Create a new DataFrame named anomalies_df that contains
     # only the rows where EITHER
@@ -130,8 +131,8 @@ def main() -> None:
     # A single pipe (|) is the OR operator in polars.
     # We will use greater than or equal to (>=) to find values at or above the threshold.
     anomalies_df: pl.DataFrame = df.filter(
-        (pl.col("age_years") >= MAX_REASONABLE_X_VALUE)
-        | (pl.col("height_inches") >= MAX_REASONABLE_Y_VALUE)
+        (pl.col("age_years") >= MIN_REASONABLE_X_VALUE)
+        & (pl.col("height_inches") >= MIN_REASONABLE_Y_VALUE)
     )
 
     LOG.info(f"Count of anomalies found: {anomalies_df.height}")
